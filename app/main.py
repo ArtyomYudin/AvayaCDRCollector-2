@@ -17,6 +17,10 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
             data = await reader.readline()
             if not data:
                 break
+
+            # Удаляем все нулевые байты на уровне bytes
+            data = data.replace(b'\x00', b'')
+
             line = data.decode(errors='ignore').strip()
             if not line:
                 continue
