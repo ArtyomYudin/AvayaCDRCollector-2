@@ -24,8 +24,13 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
     time_field = parts[1]
     dur_field = parts[2]
 
-    if not (len(date_field) >=6 and len(time_field) >=6):
-        logger.debug("if not (len(date_field) >=6 and len(time_field) >=6)")
+    # if not (len(date_field) >=6 and len(time_field) >=6):
+    #     return None
+    if len(date_field) < 6:
+        return None
+
+    # Для времени — достаточно 4 (HHMM) или 6 (HHMMSS)
+    if len(time_field) not in (4, 6):
         return None
 
     # split into two-digit groups (like original)
