@@ -27,7 +27,15 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
 
     # split into two-digit groups (like original)
     d_chunks = [date_field[i:i+2] for i in range(0, len(date_field), 2)]
-    t_chunks = [time_field[i:i+2] for i in range(0, len(time_field), 2)]
+    # t_chunks = [time_field[i:i+2] for i in range(0, len(time_field), 2)]
+
+    # handle time
+    if len(time_field) == 4:  # HHMM
+        t_chunks = [time_field[0:2], time_field[2:4], "00"]
+    elif len(time_field) == 6:  # HHMMSS
+        t_chunks = [time_field[0:2], time_field[2:4], time_field[4:6]]
+    else:
+        return None
 
     try:
         year = int('20' + d_chunks[2])
@@ -35,8 +43,9 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
         day = int(d_chunks[0])
         hour = int(t_chunks[0])
         minute = int(t_chunks[1])
+        second = int(t_chunks[2])
         # Build end datetime (naive)
-        end_dt = datetime(year, month, day, hour, minute, 0)
+        end_dt = datetime(year, month, day, hour, minute, second)
     except Exception:
         return None
 
