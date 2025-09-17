@@ -16,6 +16,7 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
         return None
     parts = re.split(r'\s+', s)
     if len(parts) < 6:
+        logger.debug("if len(parts) < 6")
         return None
     # parts[0] = date in format like DDMMYY? Original code used .match(/.{1,2}/g) and "20" + parts[0][2]
     # We'll follow same transformation: assume parts[0] is 6 digits DDMMYY
@@ -24,6 +25,7 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
     dur_field = parts[2]
 
     if not (len(date_field) >=6 and len(time_field) >=6):
+        logger.debug("if not (len(date_field) >=6 and len(time_field) >=6)")
         return None
 
     # split into two-digit groups (like original)
@@ -36,6 +38,7 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
     elif len(time_field) == 6:  # HHMMSS
         t_chunks = [time_field[0:2], time_field[2:4], time_field[4:6]]
     else:
+        logger.debug(f"handle time date={date_field}, time={time_field}, dur={dur_field}" )
         return None
 
     try:
