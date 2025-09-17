@@ -27,7 +27,7 @@ using async IO, PostgreSQL, SQLAlchemy (async), and standard logging.
    export NET_SOCKET_ADDR=0.0.0.0
    export NET_SOCKET_PORT=9000
    ```
-3. Create DB table (example SQL provided in README).
+3. Create DB table (example SQL provided below).
 4. Run the server:
    ```bash
    python -m app.main
@@ -42,6 +42,52 @@ using async IO, PostgreSQL, SQLAlchemy (async), and standard logging.
 - `requirements.txt` — Python dependencies
 - `LICENSE` — MIT license
 - `.env` — environment variables
+
+## Input / Output format
+
+The server receives Avaya CDR lines over TCP.  
+Each line is space-separated and contains date, time, duration, and numbers.
+
+### Example input line:
+```
+170925 1547 00252                    2434 0                2432
+```
+
+### Parsed fields:
+- `170925` → call end date in **DDMMYY** → `2025-09-17`
+- `1547`   → call end time in **HHMM** → `15:47:00`
+- `00252`  → call duration:
+  - `0` hours  
+  - `02` minutes  
+  - `52` seconds  
+  = `172` seconds
+- `2434`   → called number (`called_number`)
+- `0`      → call code (`call_code`)
+- `2432`   → calling number (`calling_number`)
+
+### Stored in database (PostgreSQL table `avaya_cdr`):
+| Field            | Value                  |
+|------------------|------------------------|
+| `date`           | `2025-09-17 15:44:08`  |
+| `duration`       | `172`                  |
+| `calling_number` | `2432`                 |
+| `called_number`  | `2434`                 |
+| `call_code`      | `0`                    |
+
+> **Note**: start time is calculated as `end_time - duration`.
+
+## Database schema (PostgreSQL)
+
+```sql
+CREATE TABLE IF NOT EXISTS avaya_cdr (
+    id SERIAL PRIMARY KEY,
+    date TIMESTAMP NOT NULL,
+    duration INTEGER NOT NULL,
+    calling_number VARCHAR(50),
+    called_number VARCHAR(50),
+    call_code VARCHAR(10)
+);
+```
 
 ## Notes & Assumptions
 - The original Node app expected the CDR record fields separated by spaces and used the end time + duration to compute start time. This implementation follows the same logic.
