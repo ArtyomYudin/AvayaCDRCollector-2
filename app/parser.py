@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, List
+from app.logger import logger
 
 def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
     """Parse a CDR line similar to the original Node.js logic.
@@ -46,7 +47,8 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
         second = int(t_chunks[2])
         # Build end datetime (naive)
         end_dt = datetime(year, month, day, hour, minute, second)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Parsing failed at: {e} | date={date_field}, time={time_field}, dur={dur_field}")
         return None
 
     # duration parsing: original code took substring positions
@@ -65,7 +67,8 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
             minutes = int(dur_digits[1:3]) if len(dur_digits) >=3 else 0
             seconds = int(dur_digits[3:]) if len(dur_digits) >3 else 0
             duration_seconds = hours*3600 + minutes*60 + seconds
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Parsing failed at: {e} | date={date_field}, time={time_field}, dur={dur_field}")
         return None
 
     # compute start time as end_dt - duration + timezone correction similar to original
