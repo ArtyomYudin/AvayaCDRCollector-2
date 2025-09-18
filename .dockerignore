@@ -1,8 +1,8 @@
 # Исключаем виртуальные окружения
 venv/
 .venv
-#.env
-#.env.*
+#.env.example
+#.env.example.*
 
 # Исключаем system/IDE файлы
 *.pyc

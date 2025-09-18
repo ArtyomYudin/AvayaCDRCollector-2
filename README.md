@@ -41,7 +41,7 @@ using async IO, PostgreSQL, SQLAlchemy (async), and standard logging.
 - `app/logger.py` — logging configuration
 - `requirements.txt` — Python dependencies
 - `LICENSE` — MIT license
-- `.env` — environment variables
+- `.env.example` — example environment variables
 
 ## Input / Output format
 
