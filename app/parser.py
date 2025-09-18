@@ -1,8 +1,8 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 
-def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
+def parse_cdr_line(line: str) -> Optional[Tuple[datetime, int, str, str, str]]:
     """Parse a CDR line similar to the original Node.js logic.
 
     Expected format: <date> <time> <duration> ... fields ...
@@ -51,7 +51,7 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
         minute = int(t_chunks[1])
         second = int(t_chunks[2])
         # Build end datetime (naive)
-        end_dt = datetime(year, month, day, hour, minute, second)
+        end_dt = datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
     except Exception:
         return None
 
@@ -77,8 +77,8 @@ def parse_cdr_line(line: str) -> Optional[Tuple[str, int, str, str, str]]:
     # compute start time as end_dt - duration + timezone correction similar to original
     # Original code used getTimezoneOffset adjustments; here we will assume server local time (naive).
     start_dt = end_dt - timedelta(seconds=duration_seconds)
-    start_str = start_dt.strftime('%Y-%m-%d %H:%M:%S')
+    # start_str = start_dt.strftime('%Y-%m-%d %H:%M:%S')
     calling_number = parts[5]
     called_number = parts[3]
     call_code = parts[4]
-    return start_str, duration_seconds, calling_number, called_number, call_code
+    return start_dt, duration_seconds, calling_number, called_number, call_code
