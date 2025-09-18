@@ -1,13 +1,19 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import String, DateTime, Integer
+from sqlalchemy.orm import Mapped, declarative_base
+from sqlalchemy.orm import mapped_column
+from datetime import datetime, timezone
 
 Base = declarative_base()
 
 class AvayaCDR(Base):
     __tablename__ = "avaya_cdr"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    date = Column(DateTime, nullable=False)
-    duration = Column(Integer, nullable=False)
-    calling_number = Column(String(64))
-    called_number = Column(String(64))
-    call_code = Column(String(64))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    duration: Mapped[int] = mapped_column()
+    calling_number: Mapped[str] =  mapped_column(String(25))
+    called_number: Mapped[str] =  mapped_column(String(25))
+    call_code: Mapped[str] = mapped_column(String(2))
